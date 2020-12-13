@@ -1,0 +1,128 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Consulta CEDIS</title>
+
+  <!-- (AdminLTE 3 - Solicitud de fuente Sans Pro)-->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Incluír plugin fontawesome para íconos -->
+  <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
+  <!-- (AdminLTE 3 - CSS de estilo del template )-->
+  <link rel="stylesheet" href="{% static 'css/adminlte.min.css' %}">
+    
+  {% block extracss %}  
+  {% endblock extracss %}
+</head>
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+  	<!-- Navbar del proyecto, parte superior -->
+  	<nav class="main-header navbar navbar-expand navbar-white navbar-light ">
+		<!-- Left navbar links -->
+		<ul class="navbar-nav">
+			<li class="nav-item">
+				<a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+			</li>
+			<li class="nav-item d-none d-sm-inline-block">
+				<a href="../../index3.html" class="nav-link">Home</a>
+			</li>
+		</ul>
+  	</nav>
+  <!-- /.navbar -->
+
+    <!-- Sidebar del proyecto -->
+    <aside class="main-sidebar sidebar-dark-primary elevation-4">
+        <!-- Logo -->
+        <a href="{% url 'index' %}" class="brand-link">
+        <img src="{% static 'img/AdminLTELogo.png' %}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+        <span clas="brand-text font-weight-light">Desafío CEDIS</span>
+        <br>
+        </a>
+
+        <div class="sidebar">
+            <nav class="mt-2">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                <li class="nav-header">MENÚ</li>
+                
+                <li class="nav-item">
+                    <a href="{% url 'index' %}" class="nav-link">
+                    <i class="nav-icon fa fa-home"></i>
+                    <p>
+                        Home
+                    </p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="../gallery.html" class="nav-link">
+                    <i class="nav-icon fa fa-cog"></i>
+                    <p>
+                        Consulta CEDIS
+                    </p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="../gallery.html" class="nav-link">
+                    <i class="nav-icon fa fa-image"></i>
+                    <p>
+                        Consulta TIIE
+                    </p>
+                    </a>
+                </li>
+            </nav>
+        </div>
+        <!-- /.sidebar -->
+    </aside>
+
+    <!-- Contenido de la página -->
+    <div class="content-wrapper">
+
+        <!-- Header del contenido -->
+        <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>{% block seccion %} {% endblock seccion %}</h1>
+            </div>
+            </div>
+        </div>
+        </section>
+
+        <!-- Base del contenido -->
+        <section class="content">
+
+            {% block contenido %}
+            {% endblock contenido %} 
+
+        </section>
+    </div>
+    <!-- /.content-wrapper -->
+
+    <footer class="main-footer">
+        <div class="float-right d-none d-sm-block">
+            <!-- Me gustan los sitios donde viene esta leyenda en el footer, así que decidí incluírlo :) -->
+            Made with <i class="fa fa-heart"></i> by Arturo Aguilera
+        </div>
+        <strong>Copyright &copy; 2014-2020 <a href="https://adminlte.io">AdminLTE.io</a>.</strong> All rights reserved. <b>Version</b> 3.1.0-rc
+    </footer>
+
+    <!-- Control Sidebar -->
+    <aside class="control-sidebar control-sidebar-dark">
+        <!-- Control sidebar content goes here -->
+    </aside>
+    <!-- /.control-sidebar -->
+</div>
+
+
+</body>
+
+<!-- (AdminLTE 3 - jQuery) -->
+<script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+<!-- (AdminLTE 3 - Bootstrap 4) -->
+<script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'js/adminlte.min.js' %}"></script>
+{% block extrajs %}
+{% endblock extrajs %}
+</html>

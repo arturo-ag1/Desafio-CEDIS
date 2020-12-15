@@ -11,6 +11,7 @@ from django.shortcuts import resolve_url
 from urllib.parse import urlparse
 from django.http import JsonResponse
 from datetime import datetime
+from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 #Vistas
 
 ##############################################

@@ -9,20 +9,23 @@ from functools import wraps
 from django.db import models
 from django.shortcuts import resolve_url
 from urllib.parse import urlparse
+from django.http import JsonResponse
+from datetime import datetime
+#Vistas
 
-# Create your views here.
+##############################################
 
-
+#Vista de inicio de sesión, devuelve al template de login
 def login_page(request):
     return render(request,'login/nlogin.html')
 
-
+#Vista de login, se ejecuta cuando el usuario presiona el botón 'Iniciar Sesión'
 def login_user(request):
     if request.method == 'POST':
         username = request.POST.get('user', '')
         password = request.POST.get('password', '')
-        print(username)
-        print(password)
+
+        #Autenticamos al usuario
         user = authenticate(username=username, password=password)
         if user is not None and user.is_active:
             role = ""
@@ -30,17 +33,26 @@ def login_user(request):
                 usrol = user.groups.all().latest('id')
                 role = usrol.name
             login(request, user)
+            
+            #Colocamos datos en la sesión para mostrar en la pantalla principal
             request.session['rol'] = role
             permissions = Permission.objects.filter(user=request.user)
             request.session['nombre'] = user.first_name+" "+user.last_name
             request.session['fecha'] = str(datetime.today().strftime('%d-%m-%Y'))
+
+            #Devolvemos a la consulta de udis
             return redirect('/cedis/consulta_udis')
         else:
             return render(request,'login/nlogin.html',{'error': True, 'message': 'Nombre de usuario o contraseña incorrecta.'})
 
+
+##############################################
+
+#Vista de registro, envía al template de registro de usuario
 def registro(request):
     return render(request,'login/registro.html')
 
+#Vista de guardado de registro
 def registro_guardar(request):
     if request.method == 'POST':
         email = request.POST.get('email', '')
@@ -56,6 +68,7 @@ def registro_guardar(request):
                 
                 user = User.objects.create_user(username=email,email=email,password=password,first_name=nombre,last_name=apellido)
 
+                #Cada usuario nuevo entra con el rol de capturista
                 group = Group.objects.get(name='Capturista')
                 user.groups.add(group)
                 user.save()
@@ -69,12 +82,16 @@ def registro_guardar(request):
         return redirect('/cedis/consulta_udis')
 
 
+##############################################
+
+#Vista para terminar sesión, envía al login de vuelta
 @login_required(login_url='/cedis/login')
 def logout_user(request):
     logout(request)
     return redirect('/cedis/login')
 
 
+##############################################
 
 def permission_required_2(perm, login_url=None, raise_exception=False):
     """
@@ -132,15 +149,60 @@ def user_passes_test_2(test_func, login_url=None, redirect_field_name=REDIRECT_F
         return _wrapped_view
     return decorator
 
+##############################################
 
-
-
+#Vista de consulta de udis, devuelve a la página para consultar los udis
 @login_required(login_url='/cedis/login')
 def consulta_udis(request):
     hoy = datetime.today().strftime("%d-%m-%Y")
     return render(request,'udis/home.html',{'hoy':hoy})
 
+
+##############################################
+
+#Vista de consulta de udis, devuelve a la página para consultar las tiie
 @login_required(login_url='/cedis/login')
 def consulta_tiie(request):
     hoy = datetime.today().strftime("%d-%m-%Y")
     return render(request,'tiie/home.html',{'hoy':hoy})
+
+
+##############################################
+
+#Vista de consulta de historial de busquedas
+@login_required(login_url='/cedis/login')
+def historial_busquedas(request):
+    hoy = datetime.today().strftime("%d-%m-%Y")
+
+    #Obtenemos datos de información
+    objConsultas = Consulta.objects.filter(user=request.user)
+    busquedas_hoy = objConsultas.filter(created__gte=datetime.now().replace(hour=0,minute=0,second=0)).count()
+    busquedas_totales = objConsultas.count()
+
+    return render(request,'historial/home.html',{'consultas':objConsultas,'busquedas_hoy':busquedas_hoy,'busquedas_totales':busquedas_totales})
+
+#Vista para guardar consultas
+def guardar_consulta(request):
+    try:
+        message = {"error": False, "message": "", "data": []}
+        
+        fecha_inicial = request.POST.get('fecha_inicial','')
+        fecha_final = request.POST.get('fecha_final','')
+        tipo = request.POST.get('tipo','1')
+
+        objConsulta = Consulta.objects.create()
+        objConsulta.user = request.user
+        objConsulta.fecha_inicial = datetime.strptime(fecha_inicial, "%Y-%m-%d")
+        objConsulta.fecha_final = datetime.strptime(fecha_final, "%Y-%m-%d")
+        objConsulta.tipo = tipo
+        objConsulta.save()
+
+
+        message['message'] = "ok"
+        return JsonResponse(message)
+    except Exception as e:
+        message['message'] = e
+        message['error'] = True
+        return JsonResponse(message)
+
+    

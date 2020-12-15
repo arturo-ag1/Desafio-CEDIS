@@ -267,6 +267,9 @@ Consulta de UDIS
 
                                     mostrar_grafica_udis(grafica_udis,titulos,valores)
                                 }
+
+                                //Ejecutamos la función de guardar consulta
+                                guardar_consulta(fecha_inicio,fecha_fin)
                             }catch(error){
                                 mostrar_toast('error','Error','Algunas tasas no arrojaron datos.')
                             }
@@ -347,6 +350,27 @@ Consulta de UDIS
 
     function comparar_fecha(fecha1,fecha2){
         return new Date(fecha1) > new Date(fecha2)
+    }
+
+    function guardar_consulta(fecha_inicial,fecha_final){
+        $.ajax({
+            type : "POST",
+            url : "{% url 'guardar_consulta' %}",
+            data: {                    
+                "csrfmiddlewaretoken":"{{ csrf_token }}",
+                "fecha_inicial": fecha_inicial,
+                "fecha_final": fecha_final,
+                "tipo":"1"
+                },
+            success: function(data){                   
+
+                mostrar_toast('success','Hecho','Consulta guardada en la base de datos.')
+
+            },
+            failure: function(data){
+                mostrar_toast('error','Error','Error guardando consulta.')
+            }
+        });
     }
     
 </script>

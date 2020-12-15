@@ -15,7 +15,12 @@ urlpatterns = [
     re_path(r'^registro/$', views.registro, name='registro'),
     re_path(r'^registro/guardar$', views.registro_guardar, name='registro_guardar'),
 
+    #Consultas
     re_path(r'^consulta_udis/$', permission_required_2('cedis.permisos-consulta_udis', login_url='/cedis/login') (views.consulta_udis), name='consulta_udis'),
     re_path(r'^consulta_tiie/$', permission_required_2('cedis.permisos-consulta_tiie', login_url='/cedis/login') (views.consulta_tiie), name='consulta_tiie'),
-    
+    re_path(r'^guardar_consulta$', views.guardar_consulta, name='guardar_consulta'),
+
+    #Historial
+    re_path(r'^historial_busquedas/$', permission_required_2('cedis.permisos-historial_busquedas', login_url='/cedis/login') (views.historial_busquedas), name='historial_busquedas'),
+
 ]  

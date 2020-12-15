@@ -1,0 +1,74 @@
+{% extends "master_page.html" %}
+{% load static %}
+
+{% block seccion %}
+Historial de Búsquedas
+{% endblock %}
+
+{% block contenido %}
+
+<div class="col-12 mt-5">
+    <div class="card">
+        <div class="card-header">
+            <h5><b>Aquí podrás observar todas las búsquedas que hayas realizado.</b></h5>
+        </div>
+        <div class="card-body">
+            
+            <div class="row">
+                <div class="col-md-6 text-center">
+                    <label>Búsquedas hoy:</label>
+                    <input type="text" id="busquedas_hoy" class="form-control text-center" value="{{busquedas_hoy}}" readonly>
+                </div>
+                <div class="col-md-6 text-center">
+                    <label>Búsquedas totales:</label>
+                    <input type="text" id="busquedas_totales" class="form-control text-center" value="{{busquedas_totales}}" readonly>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-md-12">
+                    <table id="tabla_historial" class="text-center table table-striped" width="100%">
+                        <thead class="text-capitalize thead-dark">
+                            <tr>
+                                <th>Fecha Inicial</th>
+                                <th>Fecha Final</th>
+                                <th>Tipo de Búsqueda</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for busqueda in consultas %}
+                                <tr>
+                                    <td>{{busqueda.fecha_inicial|date:'d-m-Y'|default_if_none:''}}</td>
+                                    <td>{{busqueda.fecha_final|date:'d-m-Y'|default_if_none:''}}</td>
+                                    <td>{{busqueda.get_tipo_display|default_if_none:''}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>  
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extrajs %}
+
+<script>
+
+    $(function () {
+        //Date range picker
+        $('#fecha_inicial').datetimepicker({
+            format: "DD-MM-YYYY"
+        });
+        $('#fecha_final').datetimepicker({
+            format: "DD-MM-YYYY"
+        });
+    });
+
+    
+    
+    
+</script>
+{% endblock %}

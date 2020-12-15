@@ -31,13 +31,13 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'consulta_cedis',
     'django.contrib.admin',
-    'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'consulta_cedis'
+    'django.contrib.auth',
 ]
 
 MIDDLEWARE = [
@@ -123,3 +123,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# No te preocupes! No es mi contraseña de verdad.
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.googlemail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'arturo.aguileraromero@gmail.com'
+EMAIL_HOST_PASSWORD = 'fwrrsjzfkkdrhqrh'
+EMAIL_USE_TLS = True

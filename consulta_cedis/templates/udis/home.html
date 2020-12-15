@@ -1,0 +1,380 @@
+{% extends "master_page.html" %}
+{% load static %}
+
+{% block seccion %}
+Consulta de UDIS
+{% endblock %}
+
+{% block contenido %}
+
+<div class="col-6 mt-5 mx-auto">
+    <div class="card">
+        <div class="card-header">
+            <h5><b>Ingresa el rango de fechas</b></h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Fecha Inicial:</label>
+                        <div class="input-group date" id="fecha_inicial" data-target-input="nearest">
+                            <input type="text" id="fecha_inicio" name="fecha_inicio" class="form-control datetimepicker-input" data-target="#fecha_inicial" value="{{hoy}}"/>
+                            <div class="input-group-append" data-target="#fecha_inicial" data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Fecha Final:</label>
+                        <div class="input-group date" id="fecha_final" data-target-input="nearest">
+                            <input type="text" id="fecha_fin" name="fecha_fin" class="form-control datetimepicker-input" data-target="#fecha_final" value="{{hoy}}"/>
+                            <div class="input-group-append" data-target="#fecha_final" data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 mt-5 ">
+                    <button id="btnBuscar" name="btnBuscar" class="btn btn-secondary float-right">Buscar</button>
+                </div>
+            </div>        
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-6 mt-2">
+        <div class="card">
+            <div class="card-header">
+                <h5><b>Resultados UDIS</b></h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <label >Promedio:</label>
+                        <input type="text" id="udis_promedio" class="form-control text-center" readonly>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <label >Mayor:</label>
+                        <input type="text" id="udis_max" class="form-control text-center" readonly>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <label >Menor:</label>
+                        <input type="text" id="udis_min" class="form-control text-center" readonly>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table id="tabla_udis" class="text-center table table-striped" width="100%">
+                            <thead class="text-capitalize thead-dark">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-12">
+                        <canvas id="chart_udis" width="400" height="400" hidden></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 mt-2">
+        <div class="card">
+            <div class="card-header">
+                <h5><b>Resultados dólar</b></h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <label >Promedio:</label>
+                        <input type="text" id="dolar_promedio" class="form-control text-center" readonly>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <label >Mayor:</label>
+                        <input type="text" id="dolar_max" class="form-control text-center" readonly>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <label >Menor:</label>
+                        <input type="text" id="dolar_min" class="form-control text-center" readonly>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table id="tabla_dolares" class="text-center table table-striped" width="100%">
+                            <thead class="text-capitalize thead-dark">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-12">
+                        <canvas id="chart_dolar" width="400" height="400" hidden></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extrajs %}
+
+<script>
+
+    const SERIE_DOLAR = "SF43718"
+    const SERIE_UDIS = "SP68257"
+
+    $(function () {
+        //Date range picker
+        $('#fecha_inicial').datetimepicker({
+            format: "DD-MM-YYYY"
+        });
+        $('#fecha_final').datetimepicker({
+            format: "DD-MM-YYYY"
+        });
+    });
+
+    var btnBuscar = document.getElementById('btnBuscar')
+    btnBuscar.onclick = ()=>{
+        limpiar_datos()
+        buscar_udis()
+    }
+
+    function buscar_udis(){
+        try{
+            let fecha_inicio = document.getElementById('fecha_inicio').value
+            let fecha_fin = document.getElementById('fecha_fin').value
+
+            var grafica_udis = document.getElementById('chart_udis')
+            var grafica_dolar = document.getElementById('chart_dolar')
+
+            //Validaciones de fechas
+            //Las fechas deben tener algún valor
+            if(fecha_inicio == "" || fecha_fin == ""){
+                mostrar_texto('error','Error','Por favor, coloque ambas fechas.')
+            
+                //La fecha de inicio no puede ser mayor a la de fin
+            }else if(comparar_fecha(fecha_reversa(fecha_inicio),fecha_reversa(fecha_fin))){
+                mostrar_texto('error','Error','La fecha de inicio no puede ser mayor a la de fin.')
+            }else{
+                //Colocamos la fecha al revés, requisito del web service
+                fecha_inicio = fecha_reversa(fecha_inicio)
+                fecha_fin = fecha_reversa(fecha_fin)
+                
+                //Series del web service, udis y dólar
+                let series = SERIE_UDIS+","+SERIE_DOLAR
+
+                //Tablas a las que se les colocarán los datos
+                var tabla_dolares = document.getElementById('tabla_dolares').getElementsByTagName('tbody')[0]
+                var tabla_udis = document.getElementById('tabla_udis').getElementsByTagName('tbody')[0]
+                
+                $.ajax({
+                    url:"https://www.banxico.org.mx/SieAPIRest/service/v1/series/"+series+"/datos/"+fecha_inicio+"/"+fecha_fin+"",
+                    jsonp:"callback",
+                    data:{
+                        "token":token
+                    },
+                    dataType:"jsonp", 
+                    success:function(response){
+                        data = response.bmx.series
+                        var promedio = 0
+                        var max = 0
+                        var min = Number.MAX_VALUE
+                        var titulos = []
+                        var valores = []
+                        
+                        /*
+                            Recorremos todas las series mandadas a llamar en el web service
+                            El web service de banxico te envía las seres de forma aleatoria, por
+                            eso se hacen validaciones.  
+                        */
+                        data.forEach(series => {
+
+                            //Reiniciamos valores
+                            promedio = 0
+                            max = 0
+                            min = Number.MAX_VALUE
+                            titulos = []
+                            valores = []
+                            try{
+                                //Recorremos los datos de cada serie...
+                                series.datos.forEach(element => {
+                                    let fila = ""
+                                    let celda = ""
+                                    let newText = ""
+                                    /* -------------------- */
+
+                                    //La única diferencia es a qué tabla va dirigida la fila
+                                    if(series.idSerie == SERIE_DOLAR){
+                                        //Agregar fila
+                                        fila = tabla_dolares.insertRow();
+                                    }else{
+                                        //Agregar fila
+                                        fila = tabla_udis.insertRow();
+                                    }
+                                    celda = fila.insertCell();
+                                    texto = document.createTextNode(element.fecha);
+                                    celda.appendChild(texto);
+                                    celda = fila.insertCell();
+                                    texto = document.createTextNode(element.dato);
+                                    celda.appendChild(texto);
+
+                                    //Agregar a valores de muestro (promedio)
+                                    promedio+=parseFloat(element.dato)
+
+                                    //Agregamos a los arreglos de fechas y valores para la gráfica
+                                    titulos.push(element.fecha)
+                                    valores.push(parseFloat(element.dato))
+                                });
+
+                                //Colocamos totales dependiendo de qué serie se iteró
+                                if(series.idSerie == SERIE_DOLAR){
+                                    //Totales de promedio, mayor y menor
+                                    document.getElementById('dolar_promedio').value = (parseFloat(promedio) / valores.length).toFixed(3)
+                                    document.getElementById('dolar_max').value = Math.max(...valores)
+                                    document.getElementById('dolar_min').value = Math.min(...valores)
+
+                                    //Función que crea la gráfica con datos para dolares
+                                    mostrar_grafica_dolares(grafica_dolar,titulos,valores)
+                                }else{
+                                    document.getElementById('udis_promedio').value = (parseFloat(promedio) / valores.length).toFixed(3)
+                                    document.getElementById('udis_max').value = Math.max(...valores)
+                                    document.getElementById('udis_min').value = Math.min(...valores)
+
+                                    mostrar_grafica_udis(grafica_udis,titulos,valores)
+                                }
+
+                            }catch(error){
+                                mostrar_toast('error','Error','Algunas tasas no arrojaron datos.')
+                            }
+                            
+
+                        });
+                        //Ejecutamos la función de guardar consulta
+                        guardar_consulta(fecha_inicio,fecha_fin)
+
+                    }
+                });
+            }
+        }catch(error){
+            mostrar_texto('error','Error','Error inesperado: '+error)
+        }
+        
+    }
+
+    function mostrar_grafica_dolares(element,titulos,valores){
+        element.hidden = false
+        let tipo = "line"
+        if(titulos.length == 1){
+            tipo = "bar"
+        }
+        if (window.grafica != undefined) window.grafica.destroy()
+        window.grafica = new Chart(element, {
+            type: tipo,
+            data: {
+                labels: titulos,
+                datasets: [{
+                    label: 'Valor',
+                    data: valores,
+                    borderWidth: 1,
+                    pointBackgroundColor: "#555658",
+                    backgroundColor: "#abb0b4",
+                    pointRadius: 5
+                }]
+            }
+        });
+    }
+
+    function mostrar_grafica_udis(element,titulos,valores){
+        element.hidden = false
+        let tipo = "line"
+        if(titulos.length == 1){
+            tipo = "bar"
+        }
+        if (window.grafica_udis != undefined) window.grafica_udis.destroy()
+        window.grafica_udis = new Chart(element, {
+            type: tipo,
+            data: {
+                labels: titulos,
+                datasets: [{
+                    label: 'Valor',
+                    data: valores,
+                    borderWidth: 1,
+                    pointBackgroundColor: "#555658",
+                    backgroundColor: "#abb0b4",
+                    pointRadius: 5,
+                }]
+            }
+        });
+    }
+
+    function limpiar_datos(){
+        document.getElementById('tabla_dolares').getElementsByTagName('tbody')[0].innerHTML = ""
+        document.getElementById('tabla_udis').getElementsByTagName('tbody')[0].innerHTML = ""
+        document.getElementById('dolar_promedio').value = ""
+        document.getElementById('dolar_max').value = ""
+        document.getElementById('dolar_min').value = ""
+        document.getElementById('udis_promedio').value = ""
+        document.getElementById('udis_max').value = ""
+        document.getElementById('udis_min').value = ""
+    }
+
+    function fecha_reversa(str){
+        let str_array = str.split('-')
+        return str_array[2]+"-"+str_array[1]+"-"+str_array[0]
+    }
+
+    function comparar_fecha(fecha1,fecha2){
+        return new Date(fecha1) > new Date(fecha2)
+    }
+
+    function guardar_consulta(fecha_inicial,fecha_final){
+        $.ajax({
+            type : "POST",
+            url : "{% url 'guardar_consulta' %}",
+            data: {                    
+                "csrfmiddlewaretoken":"{{ csrf_token }}",
+                "fecha_inicial": fecha_inicial,
+                "fecha_final": fecha_final,
+                "tipo":"1"
+                },
+            success: function(data){                   
+
+                /*
+                    mostrar_toast('success','Hecho','Consulta guardada en la base de datos.')
+
+                */
+
+            },
+            failure: function(data){
+                mostrar_toast('error','Error','Error guardando consulta.')
+            }
+        });
+    }
+    
+</script>
+{% endblock %}

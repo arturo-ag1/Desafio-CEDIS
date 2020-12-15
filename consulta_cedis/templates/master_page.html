@@ -30,9 +30,6 @@
 			<li class="nav-item">
 				<a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
 			</li>
-			<li class="nav-item d-none d-sm-inline-block">
-				<a href="{% url 'index' %}" class="nav-link">Home</a>
-			</li>
 		</ul>
   	</nav>
   <!-- /.navbar -->
@@ -40,7 +37,7 @@
     <!-- Sidebar del proyecto -->
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
         <!-- Logo -->
-        <a href="{% url 'index' %}" class="brand-link">
+        <a href="{% url 'consulta_udis' %}" class="brand-link">
         <img src="{% static 'img/AdminLTELogo.png' %}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
         <span clas="brand-text font-weight-light">Desafío CEDIS</span>
         <br>
@@ -51,14 +48,6 @@
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                 <li class="nav-header">MENÚ</li>
                 
-                <li class="nav-item">
-                    <a href="{% url 'index' %}" class="nav-link">
-                    <i class="nav-icon fa fa-home"></i>
-                    <p>
-                        Home
-                    </p>
-                    </a>
-                </li>
                 <li class="nav-item">
                     <a href="{% url 'consulta_udis' %}" class="nav-link">
                     <i class="nav-icon fa fa-cog"></i>
@@ -150,7 +139,27 @@
 			title: titulo,
 			text: texto,
 		})
-	}
+    }
+    
+    function mostrar_toast(icon,titulo,texto){
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        })
+
+        Toast.fire({
+            icon: icon,
+            title: titulo,
+            text: texto
+        })
+    }
 </script>
 {% block extrajs %}
 {% endblock extrajs %}

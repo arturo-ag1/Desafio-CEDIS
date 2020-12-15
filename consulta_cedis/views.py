@@ -2,8 +2,6 @@ from django.shortcuts import render
 from datetime import datetime
 
 # Create your views here.
-def index(request):
-    return render(request,'home/home.html')
 
 def consulta_udis(request):
     hoy = datetime.today().strftime("%d-%m-%Y")

@@ -268,14 +268,14 @@ Consulta de UDIS
                                     mostrar_grafica_udis(grafica_udis,titulos,valores)
                                 }
 
-                                //Ejecutamos la función de guardar consulta
-                                guardar_consulta(fecha_inicio,fecha_fin)
                             }catch(error){
                                 mostrar_toast('error','Error','Algunas tasas no arrojaron datos.')
                             }
                             
 
                         });
+                        //Ejecutamos la función de guardar consulta
+                        guardar_consulta(fecha_inicio,fecha_fin)
 
                     }
                 });
@@ -364,7 +364,10 @@ Consulta de UDIS
                 },
             success: function(data){                   
 
-                mostrar_toast('success','Hecho','Consulta guardada en la base de datos.')
+                /*
+                    mostrar_toast('success','Hecho','Consulta guardada en la base de datos.')
+
+                */
 
             },
             failure: function(data){

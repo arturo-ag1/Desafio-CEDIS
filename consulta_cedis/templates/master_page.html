@@ -29,8 +29,28 @@
 		<ul class="navbar-nav">
 			<li class="nav-item">
 				<a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-			</li>
-		</ul>
+            </li>
+        </ul>
+
+        <ul class="navbar-nav ml-auto float-right">
+            <!-- Messages Dropdown Menu -->
+            <li class="nav-item dropdown">
+              <a class="nav-link" data-toggle="dropdown" href="#">
+                <span><i class='fas fa-calendar mr-2 fa-sm'></i>{{request.session.fecha}} | </span>
+                <span><i class='fas fa-user mr-2 fa-sm'></i>{{request.session.nombre}} | </span>
+                <span><i class='fas fa-address-card mr-2 fa-sm'></i>{{request.session.rol}}</span>
+                <span><i class='fas fa-caret-down mr-2 fa-sm'></i></span>
+              </a>
+              <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                <a href="/cedis/logout" class="dropdown-item">
+                    <i class="feather icon-log-out"></i> Cerrar Sesión
+                </a>
+                
+              </div>
+            </li>
+            
+        </ul>
+        
   	</nav>
   <!-- /.navbar -->
 

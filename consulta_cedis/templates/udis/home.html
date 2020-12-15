@@ -145,6 +145,9 @@ Consulta de UDIS
 
 <script>
 
+    const SERIE_DOLAR = "SF43718"
+    const SERIE_UDIS = "SP68257"
+
     $(function () {
         //Date range picker
         $('#fecha_inicial').datetimepicker({
@@ -178,7 +181,7 @@ Consulta de UDIS
                 fecha_fin = fecha_reversa(fecha_fin)
                 
                 //Series del web service, udis y dólar
-                let series = "SP68257"+","+"SF43718"
+                let series = SERIE_UDIS+","+SERIE_DOLAR
 
                 //Tablas a las que se les colocarán los datos
                 var tabla_dolares = document.getElementById('tabla_dolares').getElementsByTagName('tbody')[0]
@@ -193,78 +196,75 @@ Consulta de UDIS
                     dataType:"jsonp", 
                     success:function(response){
                         data = response.bmx.series
-
+                        console.log(data)
                         var promedio = 0
                         var max = 0
-                        var min = data[0].datos[0].dato
+                        var min = Number.MAX_VALUE
                         var titulos = []
                         var valores = []
+                        
+                        /*
+                            Recorremos todas las series mandadas a llamar en el web service
+                            El web service de banxico te envía las seres de forma aleatoria, por
+                            eso se hacen validaciones.  
+                        */
+                        data.forEach(series => {
 
+                            //Reiniciamos valores
+                            promedio = 0
+                            max = 0
+                            min = Number.MAX_VALUE
+                            titulos = []
+                            valores = []
 
-                        //Recorremos los datos para dólares
-                        data[0].datos.forEach(element => {
-                            if(data[0].idSerie == "SF43718"){
-                                //Agregar fila
-                                let fila = tabla_dolares.insertRow();
-                                let celda = fila.insertCell();
-                                let newText = document.createTextNode(element.fecha);
-                                celda.appendChild(newText);
+                            //Recorremos los datos de cada serie...
+                            series.datos.forEach(element => {
+                                let fila = ""
+                                let celda = ""
+                                let newText = ""
+
+                                //La única diferencia es a qué tabla va dirigida la fila
+                                if(series.idSerie == SERIE_DOLAR){
+                                    //Agregar fila
+                                    fila = tabla_dolares.insertRow();
+                                }else{
+                                    //Agregar fila
+                                    fila = tabla_udis.insertRow();
+                                }
                                 celda = fila.insertCell();
-                                newText = document.createTextNode(element.dato);
-                                celda.appendChild(newText);
+                                texto = document.createTextNode(element.fecha);
+                                celda.appendChild(texto);
+                                celda = fila.insertCell();
+                                texto = document.createTextNode(element.dato);
+                                celda.appendChild(texto);
 
                                 //Agregar a valores de muestro (promedio)
-                                promedio+=element.dato
+                                promedio+=parseFloat(element.dato)
 
                                 //Agregamos a los arreglos de fechas y valores para la gráfica
-                                titulos.push(element.fecha)
-                                valores.push(element.dato)
-                                
+                                titulos.push(parseFloat(element.fecha))
+                                valores.push(parseFloat(element.dato))
+                            });
+
+                            //Colocamos totales dependiendo de qué serie se iteró
+                            if(series.idSerie == SERIE_DOLAR){
+                                //Totales de promedio, mayor y menor
+                                document.getElementById('dolar_promedio').value = (parseFloat(promedio) / valores.length).toFixed(3)
+                                document.getElementById('dolar_max').value = Math.max(...valores)
+                                document.getElementById('dolar_min').value = Math.min(...valores)
+
+                                //Función que crea la gráfica con datos para dolares
+                                mostrar_grafica_dolares(grafica_dolar,titulos,valores)
+                            }else{
+                                document.getElementById('udis_promedio').value = (parseFloat(promedio) / valores.length).toFixed(3)
+                                document.getElementById('udis_max').value = Math.max(...valores)
+                                document.getElementById('udis_min').value = Math.min(...valores)
+
+                                mostrar_grafica_udis(grafica_udis,titulos,valores)
                             }
+
                         });
-                        //Totales de promedio, mayor y menor
-                        document.getElementById('dolar_promedio').value = (parseFloat(promedio) / valores.length).toFixed(3)
-                        document.getElementById('dolar_max').value = Math.max(valores)
-                        document.getElementById('dolar_min').value = Math.min(valores)
 
-                        //Función que crea la gráfica con datos
-                        mostrar_grafica(grafica_dolar,titulos,valores)
-
-                        //Reiniciamos valores
-                        promedio = 0
-                        max = 0
-                        min = data[1].datos[0].dato
-                        titulos = []
-                        valores = []
-
-
-                        data[1].datos.forEach(element => {
-                            //agregamos datos a la tabla de udis
-                            if(data[1].idSerie == "SP68257"){
-                                let fila = tabla_udis.insertRow();
-                                let celda = fila.insertCell();
-                                let newText = document.createTextNode(element.fecha);
-                                celda.appendChild(newText);
-                                celda = fila.insertCell();
-                                newText = document.createTextNode(element.dato);
-                                celda.appendChild(newText);
-
-                                //Agregar a valores de muestro (promedio)
-                                promedio+=element.dato
-
-                                //Agregamos a los arreglos de fechas y valores para la gráfica
-                                titulos.push(element.fecha)
-                                valores.push(element.dato)
-                            }
-                            
-                        });
-                        //Totales de promedio, mayor y menor
-                        document.getElementById('udis_promedio').value = (parseFloat(promedio) / valores.length).toFixed(3)
-                        document.getElementById('udis_max').value = Math.max(valores)
-                        document.getElementById('udis_min').value = Math.min(valores)
-
-                        //Mandamos a llamar la función que crea la gráfica con datos
-                        mostrar_grafica(grafica_udis,titulos,valores)
                     }
                 });
             }
@@ -279,13 +279,37 @@ Consulta de UDIS
         return str_array[2]+"-"+str_array[1]+"-"+str_array[0]
     }
 
-    function mostrar_grafica(element,titulos,valores){
+    function mostrar_grafica_dolares(element,titulos,valores){
         element.hidden = false
         let tipo = "line"
         if(titulos.length == 1){
             tipo = "bar"
         }
-        var myChart = new Chart(element, {
+        if (window.grafica != undefined) window.grafica.destroy()
+        window.grafica = new Chart(element, {
+            type: tipo,
+            data: {
+                labels: titulos,
+                datasets: [{
+                    label: 'Valor',
+                    data: valores,
+                    borderWidth: 1,
+                    pointBackgroundColor: "#555658",
+                    backgroundColor: "#abb0b4",
+                    pointRadius: 5
+                }]
+            }
+        });
+    }
+
+    function mostrar_grafica_udis(element,titulos,valores){
+        element.hidden = false
+        let tipo = "line"
+        if(titulos.length == 1){
+            tipo = "bar"
+        }
+        if (window.grafica_udis != undefined) window.grafica_udis.destroy()
+        window.grafica_udis = new Chart(element, {
             type: tipo,
             data: {
                 labels: titulos,

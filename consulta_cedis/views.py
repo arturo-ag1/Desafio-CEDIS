@@ -10,4 +10,5 @@ def consulta_udis(request):
     return render(request,'udis/home.html',{'hoy':hoy})
 
 def consulta_tiie(request):
+    hoy = datetime.today().strftime("%d-%m-%Y")
     return render(request,'tiie/home.html',{'hoy':hoy})

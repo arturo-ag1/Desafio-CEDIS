@@ -2,19 +2,361 @@
 {% load static %}
 
 {% block seccion %}
-Consulta de TIIE
+Consulta de Tasas de Interés Interbancarias
 {% endblock %}
 
 {% block contenido %}
 
-<div class="col-12 mt-5">
+<div class="col-6 mt-5 mx-auto">
     <div class="card">
+        <div class="card-header">
+            <h5><b>Ingresa el rango de fechas</b></h5>
+        </div>
         <div class="card-body">
-            <!--
-                Pantalla de inicio, pendiente rellenar.
-            -->            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Fecha Inicial:</label>
+                        <div class="input-group date" id="fecha_inicial" data-target-input="nearest">
+                            <input type="text" id="fecha_inicio" name="fecha_inicio" class="form-control datetimepicker-input" data-target="#fecha_inicial" value="{{hoy}}"/>
+                            <div class="input-group-append" data-target="#fecha_inicial" data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Fecha Final:</label>
+                        <div class="input-group date" id="fecha_final" data-target-input="nearest">
+                            <input type="text" id="fecha_fin" name="fecha_fin" class="form-control datetimepicker-input" data-target="#fecha_final" value="{{hoy}}"/>
+                            <div class="input-group-append" data-target="#fecha_final" data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 mt-5 ">
+                    <button id="btnBuscar" name="btnBuscar" class="btn btn-secondary float-right">Buscar</button>
+                </div>
+            </div>        
         </div>
     </div>
 </div>
 
+<div class="row">
+    <div class="col-6 mt-2">
+        <div class="card">
+            <div class="card-header">
+                <h5><b>TIIE de fondeo a un día</b></h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <label >Promedio:</label>
+                        <input type="text" id="udis_promedio" class="form-control text-center" readonly>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <label >Mayor:</label>
+                        <input type="text" id="udis_max" class="form-control text-center" readonly>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <label >Menor:</label>
+                        <input type="text" id="udis_min" class="form-control text-center" readonly>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table id="tabla_udis" class="text-center table table-striped" width="100%">
+                            <thead class="text-capitalize thead-dark">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 mt-2">
+        <div class="card">
+            <div class="card-header">
+                <h5><b>TIIE a 28 días</b></h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <label >Promedio:</label>
+                        <input type="text" id="dolar_promedio" class="form-control text-center" readonly>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <label >Mayor:</label>
+                        <input type="text" id="dolar_max" class="form-control text-center" readonly>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <label >Menor:</label>
+                        <input type="text" id="dolar_min" class="form-control text-center" readonly>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table id="tabla_dolares" class="text-center table table-striped" width="100%">
+                            <thead class="text-capitalize thead-dark">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-12">
+                        <canvas id="chart_dolar" width="400" height="400" hidden></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-6 mt-2">
+        <div class="card">
+            <div class="card-header">
+                <h5><b>TIIE a 91 días</b></h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <label >Promedio:</label>
+                        <input type="text" id="udis_promedio" class="form-control text-center" readonly>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <label >Mayor:</label>
+                        <input type="text" id="udis_max" class="form-control text-center" readonly>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <label >Menor:</label>
+                        <input type="text" id="udis_min" class="form-control text-center" readonly>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table id="tabla_udis" class="text-center table table-striped" width="100%">
+                            <thead class="text-capitalize thead-dark">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-12">
+                        <canvas id="chart_udis" width="400" height="400" hidden></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 mt-2">
+        <div class="card">
+            <div class="card-header">
+                <h5><b>TIIE a 128 días</b></h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <label >Promedio:</label>
+                        <input type="text" id="dolar_promedio" class="form-control text-center" readonly>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <label >Mayor:</label>
+                        <input type="text" id="dolar_max" class="form-control text-center" readonly>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <label >Menor:</label>
+                        <input type="text" id="dolar_min" class="form-control text-center" readonly>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table id="tabla_dolares" class="text-center table table-striped" width="100%">
+                            <thead class="text-capitalize thead-dark">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-12">
+                        <canvas id="chart_dolar" width="400" height="400" hidden></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-6 mt-2 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5><b>TIIP a 28 días</b></h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <label >Promedio:</label>
+                        <input type="text" id="dolar_promedio" class="form-control text-center" readonly>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <label >Mayor:</label>
+                        <input type="text" id="dolar_max" class="form-control text-center" readonly>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <label >Menor:</label>
+                        <input type="text" id="dolar_min" class="form-control text-center" readonly>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table id="tabla_dolares" class="text-center table table-striped" width="100%">
+                            <thead class="text-capitalize thead-dark">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-12">
+                        <canvas id="chart_dolar" width="400" height="400" hidden></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extrajs %}
+
+<script>
+
+    $(function () {
+        //Date range picker
+        $('#fecha_inicial').datetimepicker({
+            format: "DD-MM-YYYY"
+        });
+        $('#fecha_final').datetimepicker({
+            format: "DD-MM-YYYY"
+        });
+    });
+
+    var btnBuscar = document.getElementById('btnBuscar')
+    btnBuscar.onclick = ()=>{
+        buscar_tiie()
+    }
+
+    function buscar_tiie(){
+        try{
+            let fecha_inicio = document.getElementById('fecha_inicio').value
+            let fecha_fin = document.getElementById('fecha_fin').value
+
+            var grafica_udis = document.getElementById('chart_udis')
+            var grafica_dolar = document.getElementById('chart_dolar')
+
+            if(fecha_inicio == "" || fecha_fin == ""){
+                mostrar_texto('error','Error','Por favor, coloque ambas fechas.')
+            }else{
+                //Colocamos la fecha al revés, requisito del web service
+                fecha_inicio = fecha_reversa(fecha_inicio)
+                fecha_fin = fecha_reversa(fecha_fin)
+                
+                //Series del web service, udis y dólar
+                let series = "SF331451"+","+"SF43783"+","+"SF43878"+","+"SF111916"+","+"SF43947"
+
+                $.ajax({
+                    url:"https://www.banxico.org.mx/SieAPIRest/service/v1/series/"+series+"/datos/"+fecha_inicio+"/"+fecha_fin+"",
+                    jsonp:"callback",
+                    data:{
+                        "token":token
+                    },
+                    dataType:"jsonp", 
+                    success:function(response){
+                        data = response.bmx.series
+                        console.log(data)
+                    }
+                });
+            }
+        }catch(error){
+            mostrar_texto('error','Error','Error inesperado: '+error)
+        }
+    }
+
+    function fecha_reversa(str){
+        let str_array = str.split('-')
+        return str_array[2]+"-"+str_array[1]+"-"+str_array[0]
+    }
+
+    function mostrar_grafica(element,titulos,valores){
+        element.hidden = false
+        let tipo = "line"
+        if(titulos.length == 1){
+            tipo = "bar"
+        }
+        var myChart = new Chart(element, {
+            type: tipo,
+            data: {
+                labels: titulos,
+                datasets: [{
+                    label: 'Valor',
+                    data: valores,
+                    borderWidth: 1,
+                    pointBackgroundColor: "#555658",
+                    backgroundColor: "#abb0b4",
+                    pointRadius: 5
+                }]
+            }
+        });
+    }
+    
+</script>
 {% endblock %}
